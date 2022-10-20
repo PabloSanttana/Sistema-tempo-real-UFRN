@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projeto Str</title>
+</head>
+
+<style>
+    * {
+        box-sizing: border-box;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+        background-color: #fafafa;
+    }
+
+    h1 {
+        text-align: center;
+    }
+
+    .container {
+        width: 100%;
+        height: 100%;
+        max-width: 1000px;
+        min-height: 500px;
+        background-color: #ededed;
+        margin: 0 auto;
+        position: relative;
+        border: 2px solid rgb(121, 121, 121);
+        border-radius: 20px;
+        padding: 10px;
+    }
+
+    .circuile {
+        width: 100px;
+        height: 100px;
+        border-radius: 100px;
+        position: absolute;
+        background-color: transparent;
+    }
+
+    .informatio {
+        margin: 10px auto;
+        max-width: 1000px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .info1 {
+        background-color: rgb(162, 255, 207);
+        padding: 20px;
+        font-size: 1.3rem;
+        border: 1px solid #000;
+    }
+
+    .info2 {
+        margin: 0px 30px;
+        background-color: rgb(162, 226, 255);
+        padding: 20px;
+        font-size: 1.3rem;
+        border: 1px solid #000;
+    }
+
+    .btn {
+        width: 100px;
+        height: 80px;
+        font-size: 1.3rem;
+        cursor: pointer;
+    }
+
+    .Instructions {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .stop {
+        background-color: rgb(234, 58, 58);
+        border-color: #000;
+        color: #fff;
+    }
+
+    .containrControll {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #000;
+        padding: 10px;
+        background-color: #ededed;
+        margin-right: 30px;
+    }
+
+    .Controll {
+
+        display: flex;
+
+    }
+
+    .key {
+        width: 30px;
+        font-size: 30px;
+        height: 32px;
+    }
+</style>
+
+<body onload="inicializa()">
+    <h1>Jogo tempo de Resposta</h1>
+    <div id="gamer" class="container">
+        <div class="circuile"></div>
+        <div class="Instructions">
+            <p class="text-center">Instruções do jogo</p>
+            <div>
+                <p>
+                    Neste jogo iram aparecer 1 bola de cada vez com cores diferentes.
+                </p>
+                <p>
+                    Você terá 2,5 segundos para pressionar a tecla correspondente à cor.
+                </p>
+                <p>Bola na cor 🔴 Vermelha representa seta para cima ↑</p>
+                <p>Bola na cor 🟡 Amarela representa seta para baixo ↓</p>
+                <p>Bola na cor 🔵 Azul representa seta para esquerda ←</p>
+                <p>Bola na cor 🟢 Verde representa seta para direita →</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="informatio">
+        <div class="containrControll">
+            <span>Controler</span>
+            <div class="Controll">
+                <div class="key">🔴</div>
+            </div>
+            <div class="Controll">
+                <div class="key">🔵</div>
+                <div class="key">🟡</div>
+                <div class="key">🟢</div>
+            </div>
+        </div>
+        <div class="info1">
+            <div>Tempo de reação</div>
+            <div><strong id="reacao">2,5s</strong></div>
+            <br />
+            <div>Média = <strong id="media">2,3</strong></div>
+        </div>
+        <div class="info2">
+            <div>Resposta</div>
+            <div>Certa - Errada</div>
+            <br />
+            <div>Score = <strong id="score">2,5s</strong></div>
+        </div>
+        <div id="group-button">
+            <button class="btn" id="start" onclick="handle()">iniciar</button>
+        </div>
+        <div id="status"></div>
+
+
+    </div>
+</body>
+
+<script type="text/javascript">
+    const game = {
+        initial: false,
+        timer1: -1,
+        timerRefesh: -1,
+        colorCurrent: -1,
+        keyCurrent: -1,
+        hit: 0,
+        mistakes: 0,
+        tempHit: 0,
+        tempsHits: [],
+    };
+
+    const indexColrs = {
+        red: 0,
+        blue: 1,
+        yellow: 2,
+        green: 3,
+    };
+
+    function inicializa() {
+        document.addEventListener("keydown", HandleKeydown);
+    }
+    function HandleKeydown(event) {
+        if (game.initial && game.colorCurrent >= 0) {
+            var tecla = event.keyCode;
+            switch (tecla) {
+                case 38:
+                    game.keyCurrent = 38;
+                    handleGame(indexColrs.red);
+                    return;
+                case 40:
+                    game.keyCurrent = 40;
+                    handleGame(indexColrs.yellow);
+                    return;
+                case 37:
+                    game.keyCurrent = 37;
+                    handleGame(indexColrs.blue);
+
+                    return;
+                case 39:
+                    game.keyCurrent = 39;
+                    handleGame(indexColrs.green);
+                    return;
+            }
+        }
+    }
+
+    function handle() {
+        const bnt = document.querySelector("#start");
+        const inst = document.querySelector(".Instructions");
+        if (!game.initial) {
+            game.initial = true;
+            bnt.className = "btn stop";
+            bnt.innerHTML = "stop";
+            inst.setAttribute("style", "display:none");
+            document.querySelector("#reacao").innerHTML = 0;
+            document.querySelector("#media").innerHTML = 0;
+            document.querySelector("#score").innerHTML = 0;
+        } else {
+            game.initial = false;
+            game.timer1 = -1;
+            game.timerRefesh = -1;
+            game.colorCurrent = -1;
+            game.keyCurrent = -1;
+            game.hit = 0;
+            game.mistakes = 0;
+            game.tempsHits = [];
+            game.tempHit = 0;
+            bnt.className = "btn";
+            bnt.innerHTML = "start";
+            inst.setAttribute("style", "display:flex");
+            const circuile = document.querySelector(".circuile");
+            circuile.setAttribute("style", `background-color:transparent`);
+            return;
+        }
+
+        randomBolls();
+    }
+
+    function getRandomInterval() {
+        if (!game.initial) return;
+        return Math.floor(Math.random() * (3000 - 1000) + 1000);
+
+    }
+
+    function getRandomColores() {
+        if (!game.initial) return;
+        const color = Math.floor(Math.random() * (40 - 1) + 1);
+        const test = color % 4;
+        switch (test) {
+            case 0:
+                //vermelha
+                renderBoll(indexColrs.red);
+                return;
+            case 1:
+                //azul
+                renderBoll(indexColrs.blue);
+                return;
+            case 2:
+                //amarelo
+                renderBoll(indexColrs.yellow);
+                return;
+            case 3:
+                //verde
+                renderBoll(indexColrs.green);
+                return;
+        }
+    }
+
+    function renderBoll(value = -1) {
+        if (!game.initial) return;
+        game.colorCurrent = value;
+        const colors = ["red", "blue", "yellow", "green"];
+        const circuile = document.querySelector(".circuile");
+
+        var height = document.getElementById("gamer").clientHeight;
+        var width = document.getElementById("gamer").clientWidth;
+
+
+        const widthPostion = Math.random() * (width - 100 - 0) + 0;
+        const heightPostion = Math.random() * (height - 100 - 0) + 0;
+
+        circuile.setAttribute(
+            "style",
+            `background-color:${colors[game.colorCurrent]}; 
+        left:${widthPostion}px; top:${heightPostion}px;`
+        );
+    }
+
+    async function randomBolls() {
+        if (!game.initial) return;
+
+        const sleep = getRandomInterval();
+        await new Promise((r) => setTimeout(r, sleep));
+        getRandomColores();
+        game.timer1 = new Date().getTime();
+
+        game.timerRefesh = setTimeout(() => {
+            console.log("setTimeout");
+            if (game.keyCurrent == -1 && game.initial) {
+                handleGame(-5);
+            }
+        }, 2500);
+    }
+
+    function handleGame(value) {
+        const temp = new Date().getTime() - game.timer1;
+        clearTimeout(game.timerRefesh);
+        if (value !== -5) {
+            game.tempsHits.push(temp / 1000);
+            document.querySelector("#reacao").innerHTML =
+                (temp / 1000).toFixed(2) + "s";
+        }
+
+        if (value === game.colorCurrent) {
+            game.hit += 1;
+        } else {
+            game.mistakes += 1;
+        }
+        game.timer1 = -1;
+        game.timerRefesh = -1;
+        game.keyCurrent = -1;
+        game.colorCurrent = -1;
+        const circuile = document.querySelector(".circuile");
+        circuile.setAttribute("style", `background-color:transparent`);
+
+        let soma = 0;
+
+        for (let i = 0; i < game.tempsHits.length; i++) {
+            soma += game.tempsHits[i];
+        }
+
+        const media = (soma / game.tempsHits.length).toFixed(2)
+
+        document.querySelector("#media").innerHTML = media >= 0 ? media + "s" : "--";
+        document.querySelector("#score").innerHTML = game.hit - game.mistakes;
+
+        if (game.hit - game.mistakes <= -3) {
+            handle()
+            alert("Game over!!!😭")
+            return
+        }
+
+        randomBolls();
+    }
+</script>
+
+
+<script type="text/javascript">
+
+    function copy() {
+        const listText = []
+        const list = document.querySelectorAll("li a")
+        for (let value of list) {
+            listText.push(value.text)
+        }
+        console.log(listText)
+    }
+    function handle() {
+        const navigate = document.querySelectorAll(".nav")
+
+        navigate[navigate.length - 1].click()
+    }
+
+</script>
+
+
+
+</html>
