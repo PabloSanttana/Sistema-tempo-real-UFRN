@@ -49,7 +49,6 @@ int main()
     sockfd = socket(AF_INET, SOCK_DGRAM, 0); // criacao do socket
 
     address.sin_family = AF_INET;
-    // address.sin_addr.s_addr = inet_addr("192.168.1.5"); // rede
     address.sin_addr.s_addr = inet_addr("127.0.0.1"); // local
     address.sin_port = htons(porta);
 
